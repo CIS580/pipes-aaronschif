@@ -1,55 +1,56 @@
 "use strict";
 
-/* Classes */
-const Game = require('./game');
+import {Game} from './game';
+import {MediaManager} from './common/mediaManager.js'
 
-/* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
-var image = new Image();
-image.src = 'assets/pipes.png';
+let media = new MediaManager();
+let pipeSprites = media.fetchSpriteSheet('./assets/pipes.png',
+    [
+        {x:0, y:0, w:32, h:32, name:'fourWay'},
+        {x:31, y:0, w:96, h:32, name:'hLong'},
+        {x:0, y:32, w:31, h:96, name:'vLong'},
+        {x:95, y:32, w:32, h:32, name:'hShort'},
+        {x:95, y:64, w:32, h:32, name:'vShort'},
+        {x:31, y:32, w:32, h:32, name:'rdBend'},
+        {x:63, y:32, w:31, h:32, name:'ldBend'},
+        {x:31, y:64, w:32, h:32, name:'ruBend'},
+        {x:63, y:64, w:32, h:32, name:'luBend'},
+        {x:31, y:96, w:32, h:32, name:'dTee'},
+        {x:31, y:128, w:32, h:32, name:'rTee'},
+        {x:63, y:128, w:32, h:32, name:'uTee'},
+        {x:63, y:96, w:32, h:32, name:'lTee'},
+    ]);
 
-canvas.onclick = function(event) {
-  event.preventDefault();
-  // TODO: Place or rotate pipe tile
-}
-
-/**
- * @function masterLoop
- * Advances the game in sync with the refresh rate of the screen
- * @param {DOMHighResTimeStamp} timestamp the current time
- */
 var masterLoop = function(timestamp) {
   game.loop(timestamp);
   window.requestAnimationFrame(masterLoop);
 }
 masterLoop(performance.now());
 
-
-/**
- * @function update
- * Updates the game state, moving
- * game objects and handling interactions
- * between them.
- * @param {DOMHighResTimeStamp} elapsedTime indicates
- * the number of milliseconds passed since the last frame.
- */
 function update(elapsedTime) {
 
   // TODO: Advance the fluid
 }
 
-/**
-  * @function render
-  * Renders the current game state into a back buffer.
-  * @param {DOMHighResTimeStamp} elapsedTime indicates
-  * the number of milliseconds passed since the last frame.
-  * @param {CanvasRenderingContext2D} ctx the context to render to
-  */
 function render(elapsedTime, ctx) {
-  ctx.fillStyle = "#777777";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+    ctx.fillStyle = "#777777";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    for (let x=0; x<=canvas.width; x+=32) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+    }
+    for (let y=0; y<=canvas.width; y+=32) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+    }
+    ctx.strokeStyle = 'grey';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    pipeSprites.luBend.draw(ctx, 32, 32);
+    pipeSprites.hLong.draw(ctx, 0, 0);
   // TODO: Render the board
 
 }
