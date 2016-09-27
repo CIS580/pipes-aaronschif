@@ -5,10 +5,6 @@ import {EventListener} from "./events.js";
 
 export class Actor {
     constructor(world) {
-        this.baseControlState = null;
-        this.baseRenderState = null;
-        this.controlState = null;
-        this.renderState = null;
         this.events = new EventListener();
 
         this.world = world;
@@ -16,6 +12,9 @@ export class Actor {
         this.y = 0;
         this.width = 64;
         this.height = 64;
+
+        this.controlState = this.baseControlState.bind(this)();
+        this.renderState = this.baseRenderState.bind(this)();
     }
 
     getHitBoxes() {
@@ -28,7 +27,7 @@ export class Actor {
 
     update(dt) {
         let cur = this.controlState.next({dt: dt});
-        if (cur.value !== null) {
+        if (cur.value != null) {
             this.controlState = cur.value;
         } else if (cur.done) {
             this.controlState = this.baseControlState.bind(this)();
@@ -37,10 +36,13 @@ export class Actor {
 
     render(dt, ctx) {
         let cur = this.renderState.next({dt: dt, ctx: ctx});
-        if (cur.value !== null) {
+        if (cur.value != null) {
             this.renderState = cur.value;
         } else if (cur.done) {
             this.renderState = this.baseRenderState.bind(this)();
         }
     }
+
+    *baseControlState () {}
+    *baseRenderState () {}
 }
