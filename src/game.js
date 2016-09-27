@@ -20,8 +20,11 @@ export class Game {
 
         this.canvas.onmousedown = this.onStartDrag.bind(this);
         this.canvas.onmouseup = this.onEndDrag.bind(this);
+        this.canvas.onmousemove = this.onMouseMove.bind(this);
+        this.collisions = new CollisionManager();
+        this.collisions.actors = [new Tile(this)];
 
-        this.actors = [new Tile()];
+        this.mouseLocation = {x: 0, y: 0};
     }
 
     pause (flag) {
@@ -58,22 +61,63 @@ export class Game {
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        for (let actor of this.actors) {
+        for (let actor of this.collisions.actors) {
             actor.render(elapsedTime, ctx);
         }
     }
 
     update (elapsedTime) {
-        for (let actor of this.actors) {
+        this.collisions.update();
+        for (let actor of this.collisions.actors) {
             actor.update(elapsedTime);
         }
     }
 
     onStartDrag (event) {
-        console.log('foo)_')
+        this.isDragging = true;
+        let actors = this.collisions.collisionsAt(this.mouseLocation.x, this.mouseLocation.y);
+        this.beingDragged = actors;
+        for (let actor of actors) {
+            actor.onStartDrag();
+        }
     }
 
     onEndDrag (event) {
+        this.isDragging = false;
+        for (let actor of this.beingDragged) {
+            actor.onStopDrag();
+        }
+    }
 
+    onMouseMove (event) {
+        this.mouseLocation = {x: event.offsetX, y: event.offsetY};
+    }
+}
+
+class CollisionManager {
+    constructor () {
+        this.actors = [];
+        this.tileSize = 32;
+        this._tiles = [];
+    }
+
+    collisionsAt (x, y) {
+        let tile = this.getTile(x, y);
+        return tile;
+    }
+
+    getTile (x, y) {
+        x = (x / this.tileSize)|0;
+        y = (y / this.tileSize)|0;
+        return this._tiles[`${x}_${y}`] = this._tiles[`${x}_${y}`] || [];
+    }
+
+    update () {
+        this.actors.filter((a)=>!a.collect());
+        this._tiles = {};
+        for (let actor of this.actors) {
+            let tile = this.getTile(actor.x, actor.y);
+            tile.push(actor);
+        }
     }
 }

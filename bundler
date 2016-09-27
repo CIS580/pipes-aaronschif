@@ -11,10 +11,11 @@ let b = browserify("./src/app.js", {debug: true, cache: {}, packageCache: {}})
 b.on('log', (log)=>console.log(log));
 b.on('update', ()=>b
     .bundle()
+    .on('error', (error)=>{
+        console.log(error.message);
+        console.log(error.codeFrame);
+    })
     .pipe(fs.createWriteStream("bundle.js")));
-b.on('error', (error)=>{
-    console.log(error);
-})
 
 b.emit('update', []);
 
