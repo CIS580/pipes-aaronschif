@@ -1,6 +1,6 @@
 'use strict';
 
-import {Tile} from './tile';
+import {BendTile, FourTile, TeeTile, LongTile} from './tile';
 
 export class Game {
     constructor(screen, mediaManager) {
@@ -21,10 +21,12 @@ export class Game {
         this.canvas.onmousedown = this.onStartDrag.bind(this);
         this.canvas.onmouseup = this.onEndDrag.bind(this);
         this.canvas.onmousemove = this.onMouseMove.bind(this);
+        this.canvas.oncontextmenu = (e)=>e.preventDefault();
         this.collisions = new CollisionManager();
-        this.collisions.actors = [new Tile(this)];
+        this.collisions.actors = [new BendTile(this)];
 
         this.mouseLocation = {x: 0, y: 0};
+        this.beingDragged = [];
     }
 
     pause (flag) {
@@ -74,11 +76,20 @@ export class Game {
     }
 
     onStartDrag (event) {
-        this.isDragging = true;
-        let actors = this.collisions.collisionsAt(this.mouseLocation.x, this.mouseLocation.y);
-        this.beingDragged = actors;
-        for (let actor of actors) {
-            actor.onStartDrag();
+        console.log(event)
+        if (event.buttons & 1) {
+            this.isDragging = true;
+            let actors = this.collisions.collisionsAt(this.mouseLocation.x, this.mouseLocation.y);
+            this.beingDragged = actors;
+            for (let actor of actors) {
+                actor.onStartDrag();
+            }
+        }
+        if (event.buttons & 2) {
+            let actors = this.collisions.collisionsAt(this.mouseLocation.x, this.mouseLocation.y);
+            for (let actor of actors) {
+                actor.onRightClick();
+            }
         }
     }
 

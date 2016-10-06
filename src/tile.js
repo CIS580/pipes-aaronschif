@@ -9,12 +9,14 @@ export class Tile extends Actor {
         this.width = 32;
         this.height = 32;
         this.dragHandle = null;
+        this.sprites = [pipeSprites.lTee, pipeSprites.uTee, pipeSprites.rTee, pipeSprites.dTee];
+        this.rot = 0;
     }
 
     *baseRenderState () {
         while (true) {
             let {dt, ctx} = yield;
-            pipeSprites.lTee.draw(ctx, this.x, this.y);
+            this.sprites[this.rot].draw(ctx, this.x, this.y);
         }
     }
 
@@ -30,6 +32,10 @@ export class Tile extends Actor {
         }
     }
 
+    onRightClick () {
+        this.rot = (this.rot + 1) % 4;
+    }
+
     onStartDrag () {
         this.dragging = true;
         let x = this.x - this.world.mouseLocation.x;
@@ -40,7 +46,39 @@ export class Tile extends Actor {
 
     onStopDrag () {
         this.dragging = false;
-        this.x -= (this.x % 32);
-        this.y -= (this.y % 32);
+        this.x = roundTo(this.x, 32);
+        this.y = roundTo(this.y, 32);
+    }
+}
+
+export class TeeTile extends Tile {}
+
+export class LongTile extends Tile {
+    constructor (world) {
+        super(world)
+        this.sprites = [pipeSprites.hLong, pipeSprites.vLong, pipeSprites.hLong, pipeSprites.vLong]
+    }
+}
+
+export class BendTile extends Tile {
+    constructor (world) {
+        super(world)
+        this.sprites = [pipeSprites.ruBend, pipeSprites.luBend, pipeSprites.ldBend, pipeSprites.rdBend]
+    }
+}
+
+export class FourTile extends Tile {
+    constructor (world) {
+        super(world)
+        this.sprites = [pipeSprites.fourWay, pipeSprites.fourWay, pipeSprites.fourWay, pipeSprites.fourWay]
+    }
+}
+
+function roundTo (val, inc) {
+    let offBy = (val % inc);
+    if (offBy <= inc / 2) {
+        return val - offBy;
+    } else {
+        return val + inc - offBy;
     }
 }
