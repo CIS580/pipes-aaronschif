@@ -47,6 +47,7 @@ export class Game {
 
         this.score = 0
         this.level = 1
+        this.fullness = 0
     }
 
     pause (flag) {
@@ -86,7 +87,7 @@ export class Game {
         ctx.beginPath()
         ctx.strokeStyle = 'blue'
         ctx.lineWidth = 10
-        this.startTile.drawWater(ctx, 300)
+        this.startTile.drawWater(ctx, this.fullness, 'w')
         ctx.stroke()
 
         for (let actor of this.collisions.actors) {
@@ -106,10 +107,11 @@ export class Game {
             actor.update(elapsedTime);
         }
         if (!this.isDragging && this.collisions.collisionsAt(32, 64).length === 0) {
-            let posTiles = [FourTile, TeeTile, ShortTile, ShortTile, BendTile, BendTile] // LongTile
+            let posTiles = [ShortTile, BendTile]
             let tile = posTiles[Math.random()*posTiles.length|0]
             this.collisions.actors.push(new tile(this))
         }
+        this.fullness += .005 * this.level
     }
 
     onStartDrag (event) {

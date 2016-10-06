@@ -59,7 +59,8 @@ export class Tile extends Actor {
             this.x = roundTo(this.x - boardPos.x, 32) + boardPos.x;
             this.y = roundTo(this.y - boardPos.y, 32) + boardPos.y;
 
-            if (this.world.collisions.collisionsAt(this.x, this.y).length !== 0) {
+            if (this.world.collisions.collisionsAt(this.x, this.y).filter((e)=>{e!==this}).length !== 0) {
+                console.log('asdf');
                 this.x = this.oldPos.x
                 this.y = this.oldPos.y
             }
@@ -67,9 +68,19 @@ export class Tile extends Actor {
         }
     }
 
-    drawWater (ctx, fillAmount) {
+    drawWater (ctx, fillAmount, start) {
         ctx.moveTo(this.x, this.y)
         ctx.lineTo(this.x, this.y+200)
+    }
+
+    drawWaterNext (ctx, fillAmount, start) {
+        let nextTile
+        if (start === 'w') {
+            nextTile = this.world.collisions.collisionsAt(this.x+32, this.y)[0]
+        }
+        if (nextTile) {
+            nextTile.drawWater(ctx, fillAmount-1, start)
+        }
     }
 }
 
@@ -103,14 +114,17 @@ export class ShortTile extends Tile {
         this.sprites = [pipeSprites.hShort, pipeSprites.vShort]
     }
 
-    drawWater (ctx, fillAmount) {
+    drawWater (ctx, fillAmount, start) {
+        if (this.dragging) return;
+        let fullness = Math.max(Math.min(32, fillAmount*32), 0)|0
         if (this.rot === 0) {
             ctx.moveTo(this.x, this.y+16)
-            ctx.lineTo(this.x+32, this.y+16)
+            ctx.lineTo(this.x+fullness, this.y+16)
         } else {
             ctx.moveTo(this.x+16, this.y)
-            ctx.lineTo(this.x+16, this.y+32)
+            ctx.lineTo(this.x+16, this.y+fullness)
         }
+        this.drawWaterNext(ctx, fillAmount, 'w')
     }
 }
 
