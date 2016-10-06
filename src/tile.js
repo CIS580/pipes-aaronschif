@@ -2,12 +2,15 @@
 
 import {Actor} from './common/actor.js';
 import {pipeSprites} from './sprites.js';
+import {boardPos} from './game.js';
 
 export class Tile extends Actor {
     constructor (world) {
         super(world);
         this.width = 32;
         this.height = 32;
+        this.x = 32
+        this.y = 64
         this.dragHandle = null;
         this.sprites = [pipeSprites.lTee, pipeSprites.uTee, pipeSprites.rTee, pipeSprites.dTee];
         this.rot = 0;
@@ -46,8 +49,8 @@ export class Tile extends Actor {
 
     onStopDrag () {
         this.dragging = false;
-        this.x = roundTo(this.x, 32);
-        this.y = roundTo(this.y, 32);
+        this.x = roundTo(this.x - boardPos.x, 32) + boardPos.x;
+        this.y = roundTo(this.y - boardPos.y, 32) + boardPos.y;
     }
 }
 

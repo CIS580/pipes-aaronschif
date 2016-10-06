@@ -2,6 +2,13 @@
 
 import {BendTile, FourTile, TeeTile, LongTile} from './tile';
 
+export const boardPos = {
+    x: 96,
+    y: 32,
+    w: 1088,
+    h: 512,
+}
+
 export class Game {
     constructor(screen, mediaManager) {
         this.mediaManager = mediaManager;
@@ -27,6 +34,9 @@ export class Game {
 
         this.mouseLocation = {x: 0, y: 0};
         this.beingDragged = [];
+
+        this.score = 0
+        this.level = 1
     }
 
     pause (flag) {
@@ -51,13 +61,13 @@ export class Game {
         ctx.fillStyle = "#777777";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.beginPath();
-        for (let x=0; x<=canvas.width; x+=32) {
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvas.height);
+        for (let x=boardPos.x; x<=boardPos.x+boardPos.w; x+=32) {
+            ctx.moveTo(x, boardPos.y);
+            ctx.lineTo(x, boardPos.y+boardPos.h);
         }
-        for (let y=0; y<=canvas.width; y+=32) {
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvas.width, y);
+        for (let y=boardPos.y; y<=boardPos.y+boardPos.h; y+=32) {
+            ctx.moveTo(boardPos.x, y);
+            ctx.lineTo(boardPos.x+boardPos.w, y);
         }
         ctx.strokeStyle = 'grey';
         ctx.lineWidth = 2;
@@ -66,6 +76,11 @@ export class Game {
         for (let actor of this.collisions.actors) {
             actor.render(elapsedTime, ctx);
         }
+
+        ctx.fillStyle = 'white'
+        ctx.font = "12px serif"
+        ctx.fillText(`level ${this.level}`, 10, 500)
+        ctx.fillText(`${this.score} points`, 10, 520)
     }
 
     update (elapsedTime) {
