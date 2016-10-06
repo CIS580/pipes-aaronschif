@@ -32,9 +32,11 @@ export class Game {
         this.collisions = new CollisionManager();
 
         this.startTile = new ShortTile(this)
+        this.startTile.mobile = false
         this.startTile.x = boardPos.x
         this.startTile.y = boardPos.y + ((Math.random()*(boardPos.h/32))|0)*32
         this.endTile = new ShortTile(this)
+        this.endTile.mobile = false
         this.endTile.x = boardPos.x + boardPos.w-32
         this.endTile.y = boardPos.y + ((Math.random()*(boardPos.h/32))|0)*32
 
@@ -81,6 +83,12 @@ export class Game {
         ctx.lineWidth = 2;
         ctx.stroke();
 
+        ctx.beginPath()
+        ctx.strokeStyle = 'blue'
+        ctx.lineWidth = 10
+        this.startTile.drawWater(ctx, 300)
+        ctx.stroke()
+
         for (let actor of this.collisions.actors) {
             actor.render(elapsedTime, ctx);
         }
@@ -89,6 +97,7 @@ export class Game {
         ctx.font = "12px serif"
         ctx.fillText(`level ${this.level}`, 10, 500)
         ctx.fillText(`${this.score} points`, 10, 520)
+
     }
 
     update (elapsedTime) {
