@@ -14,7 +14,7 @@ export class Tile extends Actor {
         this.dragHandle = null;
         this.sprites = [pipeSprites.lTee, pipeSprites.uTee, pipeSprites.rTee, pipeSprites.dTee];
         this.rot = 0;
-        this.oldPos = {}
+        this.oldPos = {x: this.x, y: this.y}
     }
 
     *baseRenderState () {
@@ -37,7 +37,7 @@ export class Tile extends Actor {
     }
 
     onRightClick () {
-        this.rot = (this.rot + 1) % 4;
+        this.rot = (this.rot + 1) % this.sprites.length;
     }
 
     onStartDrag () {
@@ -45,7 +45,6 @@ export class Tile extends Actor {
         let x = this.x - this.world.mouseLocation.x;
         let y = this.y - this.world.mouseLocation.y;
 
-        this.oldPos = {x: this.x, y: this.y}
 
         this.dragHandle = {x:x, y:y};
     }
@@ -59,6 +58,7 @@ export class Tile extends Actor {
             this.x = this.oldPos.x
             this.y = this.oldPos.y
         }
+        this.oldPos = {x: this.x, y: this.y}
     }
 }
 
