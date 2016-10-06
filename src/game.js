@@ -1,11 +1,11 @@
 'use strict';
 
-import {BendTile, FourTile, TeeTile, LongTile} from './tile';
+import {BendTile, FourTile, ShortTile, TeeTile, LongTile} from './tile';
 
 export const boardPos = {
     x: 96,
     y: 32,
-    w: 1088,
+    w: 896,
     h: 512,
 }
 
@@ -30,7 +30,15 @@ export class Game {
         this.canvas.onmousemove = this.onMouseMove.bind(this);
         this.canvas.oncontextmenu = (e)=>e.preventDefault();
         this.collisions = new CollisionManager();
-        this.collisions.actors = [new BendTile(this)];
+
+        this.startTile = new ShortTile(this)
+        this.startTile.x = boardPos.x
+        this.startTile.y = boardPos.y + ((Math.random()*(boardPos.h/32))|0)*32
+        this.endTile = new ShortTile(this)
+        this.endTile.x = boardPos.x + boardPos.w-32
+        this.endTile.y = boardPos.y + ((Math.random()*(boardPos.h/32))|0)*32
+
+        this.collisions.actors = [this.startTile, this.endTile];
 
         this.mouseLocation = {x: 0, y: 0};
         this.beingDragged = [];
@@ -87,6 +95,11 @@ export class Game {
         this.collisions.update();
         for (let actor of this.collisions.actors) {
             actor.update(elapsedTime);
+        }
+        if (!this.isDragging && this.collisions.collisionsAt(32, 64).length === 0) {
+            let posTiles = [FourTile, TeeTile, ShortTile, ShortTile, BendTile, BendTile] // LongTile
+            let tile = posTiles[Math.random()*posTiles.length|0]
+            this.collisions.actors.push(new tile(this))
         }
     }
 

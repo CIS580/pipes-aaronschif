@@ -14,6 +14,7 @@ export class Tile extends Actor {
         this.dragHandle = null;
         this.sprites = [pipeSprites.lTee, pipeSprites.uTee, pipeSprites.rTee, pipeSprites.dTee];
         this.rot = 0;
+        this.oldPos = {}
     }
 
     *baseRenderState () {
@@ -44,6 +45,8 @@ export class Tile extends Actor {
         let x = this.x - this.world.mouseLocation.x;
         let y = this.y - this.world.mouseLocation.y;
 
+        this.oldPos = {x: this.x, y: this.y}
+
         this.dragHandle = {x:x, y:y};
     }
 
@@ -51,6 +54,11 @@ export class Tile extends Actor {
         this.dragging = false;
         this.x = roundTo(this.x - boardPos.x, 32) + boardPos.x;
         this.y = roundTo(this.y - boardPos.y, 32) + boardPos.y;
+
+        if (this.world.collisions.collisionsAt(this.x, this.y).length !== 0) {
+            this.x = this.oldPos.x
+            this.y = this.oldPos.y
+        }
     }
 }
 
@@ -74,6 +82,14 @@ export class FourTile extends Tile {
     constructor (world) {
         super(world)
         this.sprites = [pipeSprites.fourWay, pipeSprites.fourWay, pipeSprites.fourWay, pipeSprites.fourWay]
+    }
+}
+
+
+export class ShortTile extends Tile {
+    constructor (world) {
+        super(world)
+        this.sprites = [pipeSprites.hShort, pipeSprites.vShort]
     }
 }
 
