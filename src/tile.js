@@ -4,9 +4,12 @@ import {Actor} from './common/actor.js';
 import {pipeSprites} from './sprites.js';
 import {boardPos} from './game.js';
 
+let tileNum = 0
+
 export class Tile extends Actor {
     constructor (world) {
         super(world);
+        this.tileNum = tileNum++
         this.width = 32;
         this.height = 32;
         this.x = 32
@@ -59,7 +62,8 @@ export class Tile extends Actor {
             this.x = roundTo(this.x - boardPos.x, 32) + boardPos.x;
             this.y = roundTo(this.y - boardPos.y, 32) + boardPos.y;
 
-            if (this.world.collisions.collisionsAt(this.x, this.y).filter((e)=>{e!==this}).length !== 0) {
+            if (this.world.collisions.collisionsAt(this.x, this.y).filter((e)=>{
+                return e.tileNum!==this.tileNum}).length !== 0) {
                 this.x = this.oldPos.x
                 this.y = this.oldPos.y
             }
@@ -111,38 +115,60 @@ export class BendTile extends Tile {
     drawWater (ctx, fillAmount, start) {
         if (this.dragging) return;
 
+        let fullness = 0
+        let startRange = 0
         let end = 'x',
-            rot = this.rot
+            rot = this.rot,
+            fillDir = 1,
+            x = this.x,
+            y = this.y
         if (rot === 0 && start === 'n') {
             end = 'w'
-        } else if (rot === 0 && start === 'w') {
+            x += 32
+            startRange = Math.PI
+            fillDir = -1
+        } else if (rot === 0 && start === 'w') { //
             end = 'n'
-        } else if (rot === 1 && start === 'n') {
+            x += 32
+            startRange = Math.PI/2
+        } else if (rot === 1 && start === 'n') { //
             end = 'e'
-        } else if (rot === 1 && start === 'e') {
+        } else if (rot === 1 && start === 'e') { //
             end = 'n'
+            startRange = Math.PI/2
+            fillDir = -1
         } else if (rot === 2 && start === 'e') {
             end = 's'
-        } else if (rot === 2 && start === 's') {
+            startRange = 3*Math.PI/2
+            // fillDir = -1
+            y += 32
+        } else if (rot === 2 && start === 's') { //
             end = 'e'
-        } else if (rot === 3 && start === 'w') {
+            fillDir = -1
+            startRange = 0
+            y += 32
+        } else if (rot === 3 && start === 'w') { //
             end = 's'
-        } else if (rot === 3 && start === 's') {
+            x += 32
+            y += 32
+            startRange = 3*Math.PI/2
+            fillDir = -1
+        } else if (rot === 3 && start === 's') { //
             end = 'w'
+            y += 32
+            x += 32
+            startRange = Math.PI
         }
+        console.log(start, end, fillAmount)
 
-        let fullness = 0
-        let startRange = 3*Math.PI/2
         if (end !== 'x') {
             fullness = Math.max(Math.min(Math.PI/2, fillAmount*Math.PI/2), 0)
-            ctx.arc(this.x, this.y+32, 20, startRange, startRange+fullness)
+            if (fillAmount > 0) {
+                ctx.arc(x, y, 20, startRange, startRange+fullness*fillDir, fillDir===-1)
+            }
         }
 
-
-
-        console.log(start, end, rot)
-
-        // this.drawWaterNext(ctx, fillAmount, end)
+        this.drawWaterNext(ctx, fillAmount, end)
     }
 }
 
@@ -163,14 +189,25 @@ export class ShortTile extends Tile {
     drawWater (ctx, fillAmount, start) {
         if (this.dragging) return;
         let fullness = Math.max(Math.min(32, fillAmount*32), 0)|0
-        if (this.rot === 0) {
+        let end = 'x'
+        if (this.rot === 0 && start === 'e') {
+            end = 'w'
             ctx.moveTo(this.x, this.y+16)
             ctx.lineTo(this.x+fullness, this.y+16)
-        } else {
+        } else if (this.rot === 0 && start === 'w'){
+            end = 'e'
+            ctx.moveTo(this.x+32-fullness, this.y+16)
+            ctx.lineTo(this.x+32, this.y+16)
+        } else if (this.rot === 1 && start === 'n'){
+            end = 's'
             ctx.moveTo(this.x+16, this.y)
             ctx.lineTo(this.x+16, this.y+fullness)
+        } else if (this.rot === 1 && start === 's'){
+            end = 'n'
+            ctx.moveTo(this.x+16, this.y+32)
+            ctx.lineTo(this.x+16, this.y+32-fullness)
         }
-        this.drawWaterNext(ctx, fillAmount, 'w')
+        this.drawWaterNext(ctx, fillAmount, end)
     }
 }
 

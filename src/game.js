@@ -87,7 +87,7 @@ export class Game {
         ctx.beginPath()
         ctx.strokeStyle = 'blue'
         ctx.lineWidth = 5
-        this.startTile.drawWater(ctx, this.fullness, 'w')
+        this.startTile.drawWater(ctx, this.fullness, 'e')
         ctx.stroke()
 
         for (let actor of this.collisions.actors) {
@@ -115,7 +115,6 @@ export class Game {
     }
 
     onStartDrag (event) {
-        console.log(event)
         if (event.buttons & 1) {
             this.isDragging = true;
             let actors = this.collisions.collisionsAt(this.mouseLocation.x, this.mouseLocation.y);
