@@ -5,6 +5,8 @@ import {pipeSprites} from './sprites.js';
 import {boardPos} from './game.js';
 
 let tileNum = 0
+const LOSE = Symbol('lose')
+const WIN = Symbol('win')
 
 export class Tile extends Actor {
     constructor (world) {
@@ -78,6 +80,7 @@ export class Tile extends Actor {
 
     drawWaterNext (ctx, fillAmount, start) {
         let nextTile
+        fillAmount -= 1
         if (start === 'w') {
             nextTile = this.world.collisions.collisionsAt(this.x+32, this.y)[0]
             start = 'e'
@@ -91,8 +94,15 @@ export class Tile extends Actor {
             nextTile = this.world.collisions.collisionsAt(this.x, this.y+32)[0]
             start = 'n'
         }
+        if (nextTile && nextTile.tileNum === this.world.endTile.tileNum) {
+            return WIN
+        }
+        if (!nextTile && fillAmount > 0 ) {
+            return LOSE
+        }
+
         if (nextTile) {
-            nextTile.drawWater(ctx, fillAmount-1, start)
+            return nextTile.drawWater(ctx, fillAmount, start)
         }
     }
 }
@@ -140,7 +150,6 @@ export class BendTile extends Tile {
         } else if (rot === 2 && start === 'e') {
             end = 's'
             startRange = 3*Math.PI/2
-            // fillDir = -1
             y += 32
         } else if (rot === 2 && start === 's') { //
             end = 'e'
@@ -159,16 +168,18 @@ export class BendTile extends Tile {
             x += 32
             startRange = Math.PI
         }
-        console.log(start, end, fillAmount)
 
         if (end !== 'x') {
             fullness = Math.max(Math.min(Math.PI/2, fillAmount*Math.PI/2), 0)
             if (fillAmount > 0) {
                 ctx.arc(x, y, 20, startRange, startRange+fullness*fillDir, fillDir===-1)
+                this.mobile = false
             }
+        } else if (fillAmount > 0){
+            return LOSE
         }
 
-        this.drawWaterNext(ctx, fillAmount, end)
+        return this.drawWaterNext(ctx, fillAmount, end)
     }
 }
 
@@ -207,7 +218,13 @@ export class ShortTile extends Tile {
             ctx.moveTo(this.x+16, this.y+32)
             ctx.lineTo(this.x+16, this.y+32-fullness)
         }
-        this.drawWaterNext(ctx, fillAmount, end)
+        if (fillAmount > 0) {
+            this.mobile = false
+        }
+        if (fillAmount > 0 && end === 'x') {
+            return LOSE
+        }
+        return this.drawWaterNext(ctx, fillAmount, end)
     }
 }
 

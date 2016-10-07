@@ -5,8 +5,10 @@ import {BendTile, FourTile, ShortTile, TeeTile, LongTile} from './tile';
 export const boardPos = {
     x: 96,
     y: 32,
-    w: 896,
-    h: 512,
+    // w: 896,
+    // h: 512,
+    w: 320,
+    h: 320,
 }
 
 export class Game {
@@ -87,8 +89,10 @@ export class Game {
         ctx.beginPath()
         ctx.strokeStyle = 'blue'
         ctx.lineWidth = 5
-        this.startTile.drawWater(ctx, this.fullness, 'e')
+        let val = this.startTile.drawWater(ctx, this.fullness, 'e')
         ctx.stroke()
+
+        console.log(val)
 
         for (let actor of this.collisions.actors) {
             actor.render(elapsedTime, ctx);
