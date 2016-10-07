@@ -3,10 +3,11 @@
 import {Actor} from './common/actor.js';
 import {pipeSprites} from './sprites.js';
 import {boardPos} from './game.js';
+import {soundEffect} from './app'
 
 let tileNum = 0
-const LOSE = Symbol('lose')
-const WIN = Symbol('win')
+export const LOSE = Symbol('lose')
+export const WIN = Symbol('win')
 
 export class Tile extends Actor {
     constructor (world) {
@@ -44,6 +45,7 @@ export class Tile extends Actor {
 
     onRightClick () {
         if (this.mobile) {
+            soundEffect.play()
             this.rot = (this.rot + 1) % this.sprites.length;
         }
     }
@@ -60,6 +62,7 @@ export class Tile extends Actor {
 
     onStopDrag () {
         if (this.mobile) {
+            soundEffect.play()
             this.dragging = false;
             this.x = roundTo(this.x - boardPos.x, 32) + boardPos.x;
             this.y = roundTo(this.y - boardPos.y, 32) + boardPos.y;

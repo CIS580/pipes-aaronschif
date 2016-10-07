@@ -15,3 +15,10 @@ var masterLoop = function(timestamp) {
     window.requestAnimationFrame(masterLoop);
 }
 masterLoop(performance.now());
+
+
+export let soundEffect = new Audio(encodeURI('bong.ogg'))
+
+let audio = new Audio(encodeURI('bgm_action_2.mp3'))
+audio.loop = true
+audio.play()

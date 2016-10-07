@@ -1,6 +1,7 @@
 'use strict';
 
-import {BendTile, FourTile, ShortTile, TeeTile, LongTile} from './tile';
+import {BendTile, FourTile, ShortTile, TeeTile, LongTile, WIN, LOSE} from './tile';
+import {soundEffect} from './app'
 
 export const boardPos = {
     x: 96,
@@ -26,12 +27,21 @@ export class Game {
         // Start the game loop
         this.oldTime = performance.now();
         this.paused = false;
+        this.score = 0
+        this.level = 0
 
         this.canvas.onmousedown = this.onStartDrag.bind(this);
         this.canvas.onmouseup = this.onEndDrag.bind(this);
         this.canvas.onmousemove = this.onMouseMove.bind(this);
         this.canvas.oncontextmenu = (e)=>e.preventDefault();
+
+        this.init()
+    }
+
+    init () {
+        this.level += 1
         this.collisions = new CollisionManager();
+        this.fullness = 0
 
         this.startTile = new ShortTile(this)
         this.startTile.mobile = false
@@ -46,10 +56,6 @@ export class Game {
 
         this.mouseLocation = {x: 0, y: 0};
         this.beingDragged = [];
-
-        this.score = 0
-        this.level = 1
-        this.fullness = 0
     }
 
     pause (flag) {
@@ -90,9 +96,18 @@ export class Game {
         ctx.strokeStyle = 'blue'
         ctx.lineWidth = 5
         let val = this.startTile.drawWater(ctx, this.fullness, 'e')
+        if (val === WIN) {
+            soundEffect.play()
+            this.init()
+        } else if (val === LOSE) {
+            soundEffect.play()
+            ctx.fillStyle = `rgba(0, 0, 0, 0.8)`
+            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+            ctx.fillStyle = `rgba(255, 0, 0, 0.8)`
+            ctx.fillText("loser", 400, 200)
+            return
+        }
         ctx.stroke()
-
-        console.log(val)
 
         for (let actor of this.collisions.actors) {
             actor.render(elapsedTime, ctx);
@@ -101,7 +116,7 @@ export class Game {
         ctx.fillStyle = 'white'
         ctx.font = "12px serif"
         ctx.fillText(`level ${this.level}`, 10, 500)
-        ctx.fillText(`${this.score} points`, 10, 520)
+        ctx.fillText(`${this.fullness * this.level} points`, 10, 520)
 
     }
 
