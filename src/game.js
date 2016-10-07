@@ -86,7 +86,7 @@ export class Game {
 
         ctx.beginPath()
         ctx.strokeStyle = 'blue'
-        ctx.lineWidth = 10
+        ctx.lineWidth = 5
         this.startTile.drawWater(ctx, this.fullness, 'w')
         ctx.stroke()
 

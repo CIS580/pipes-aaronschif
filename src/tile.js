@@ -60,7 +60,6 @@ export class Tile extends Actor {
             this.y = roundTo(this.y - boardPos.y, 32) + boardPos.y;
 
             if (this.world.collisions.collisionsAt(this.x, this.y).filter((e)=>{e!==this}).length !== 0) {
-                console.log('asdf');
                 this.x = this.oldPos.x
                 this.y = this.oldPos.y
             }
@@ -77,6 +76,16 @@ export class Tile extends Actor {
         let nextTile
         if (start === 'w') {
             nextTile = this.world.collisions.collisionsAt(this.x+32, this.y)[0]
+            start = 'e'
+        } else if (start === 'e') {
+            nextTile = this.world.collisions.collisionsAt(this.x-32, this.y)[0]
+            start = 'w'
+        } else if (start === 'n') {
+            nextTile = this.world.collisions.collisionsAt(this.x, this.y-32)[0]
+            start = 's'
+        } else if (start === 's') {
+            nextTile = this.world.collisions.collisionsAt(this.x, this.y+32)[0]
+            start = 'n'
         }
         if (nextTile) {
             nextTile.drawWater(ctx, fillAmount-1, start)
@@ -97,6 +106,43 @@ export class BendTile extends Tile {
     constructor (world) {
         super(world)
         this.sprites = [pipeSprites.ruBend, pipeSprites.luBend, pipeSprites.ldBend, pipeSprites.rdBend]
+    }
+
+    drawWater (ctx, fillAmount, start) {
+        if (this.dragging) return;
+
+        let end = 'x',
+            rot = this.rot
+        if (rot === 0 && start === 'n') {
+            end = 'w'
+        } else if (rot === 0 && start === 'w') {
+            end = 'n'
+        } else if (rot === 1 && start === 'n') {
+            end = 'e'
+        } else if (rot === 1 && start === 'e') {
+            end = 'n'
+        } else if (rot === 2 && start === 'e') {
+            end = 's'
+        } else if (rot === 2 && start === 's') {
+            end = 'e'
+        } else if (rot === 3 && start === 'w') {
+            end = 's'
+        } else if (rot === 3 && start === 's') {
+            end = 'w'
+        }
+
+        let fullness = 0
+        let startRange = 3*Math.PI/2
+        if (end !== 'x') {
+            fullness = Math.max(Math.min(Math.PI/2, fillAmount*Math.PI/2), 0)
+            ctx.arc(this.x, this.y+32, 20, startRange, startRange+fullness)
+        }
+
+
+
+        console.log(start, end, rot)
+
+        // this.drawWaterNext(ctx, fillAmount, end)
     }
 }
 
